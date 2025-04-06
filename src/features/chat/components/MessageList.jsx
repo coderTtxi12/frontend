@@ -1,7 +1,8 @@
 import React from "react";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper } from "@mui/material";
+import FormattedMessage from "./FormattedMessage";
 
-const MessageList = ({ messages }) => {
+const MessageList = ({ messages, isLoading }) => {
   return (
     <Box
       sx={{
@@ -31,10 +32,30 @@ const MessageList = ({ messages }) => {
               borderRadius: 2,
             }}
           >
-            <Typography>{message.text}</Typography>
+            <FormattedMessage text={message.text} />
           </Paper>
         </Box>
       ))}
+      {isLoading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-start",
+            mb: 2,
+          }}
+        >
+          <Paper
+            sx={{
+              p: 2,
+              backgroundColor: "white",
+              maxWidth: "70%",
+              borderRadius: 2,
+            }}
+          >
+            <FormattedMessage isLoading={true} text="" />
+          </Paper>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -3,6 +3,7 @@ import { Paper, Box, Container } from "@mui/material";
 import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
+import { generateResponse } from "../services/chatService";
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState([
@@ -13,22 +14,41 @@ const ChatWindow = () => {
     },
   ]);
 
-  const handleSendMessage = (text) => {
-    setMessages((prev) => [
-      ...prev,
-      { id: prev.length + 1, text, sender: "user" },
-    ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-    setTimeout(() => {
+  const handleSendMessage = async (text) => {
+    try {
+      // Add user message
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, text, sender: "user" },
+      ]);
+
+      setIsLoading(true);
+
+      // Get bot response using Axios
+      const response = await generateResponse(text);
+
       setMessages((prev) => [
         ...prev,
         {
           id: prev.length + 1,
-          text: "Thanks for your message! I'm here to help.",
+          text: response.answer || "I couldn't understand that.",
           sender: "bot",
         },
       ]);
-    }, 1000);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          text: "Sorry, there was an error processing your message.",
+          sender: "bot",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -62,7 +82,7 @@ const ChatWindow = () => {
           }}
         >
           <ChatHeader title="Chat Assistant" />
-          <MessageList messages={messages} />
+          <MessageList messages={messages} isLoading={isLoading} />
           <ChatInput onSend={handleSendMessage} />
         </Box>
       </Paper>
